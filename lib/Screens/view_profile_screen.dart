@@ -36,7 +36,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'About: ',
+              'Joined on: ',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             Text(
