@@ -1,9 +1,14 @@
+import 'dart:developer';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/Apis/apis.dart';
+import 'package:chat_app/helper/dialogs.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../Models/message.dart';
 import '../helper/my_date_util.dart';
+import '../main.dart';
 
 class MessageCard extends StatefulWidget {
   const MessageCard({super.key, required this.message});
@@ -16,9 +21,13 @@ class MessageCard extends StatefulWidget {
 class _MessageCardState extends State<MessageCard> {
   @override
   Widget build(BuildContext context) {
-    return APIs.user.uid == widget.message.fromId
-        ? _greenMessage()
-        : _blueMessage();
+    bool isMe = APIs.user.uid == widget.message.fromId;
+    return InkWell(
+      onLongPress: () {
+        _showModalSheet(isMe);
+      },
+      child: isMe ? _greenMessage() : _blueMessage(),
+    );
   }
 
   Widget _blueMessage() {
@@ -157,6 +166,156 @@ class _MessageCardState extends State<MessageCard> {
           ),
         ),
       ],
+    );
+  }
+
+  void _showModalSheet(bool isMe) {
+    showModalBottomSheet(
+        context: context,
+        shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(10), topRight: Radius.circular(10))),
+        builder: (_) {
+          return ListView(
+            shrinkWrap: true,
+            children: [
+              // black divider
+              Container(
+                height: 4,
+                margin: EdgeInsets.symmetric(
+                    vertical: mq.height * 0.015, horizontal: mq.width * 0.4),
+                decoration: const BoxDecoration(color: Colors.grey),
+              ),
+
+              // Copy item
+              widget.message.type == Type.text
+                  ? _OptiopnItem(
+                      icon: const Icon(
+                        Icons.copy,
+                        color: Colors.blue,
+                      ),
+                      name: 'Copy Text',
+                      onTap: () async {
+                        await Clipboard.setData(
+                                ClipboardData(text: widget.message.msg))
+                            .then((value) {
+                          // for hiding bottom sheet
+                          Navigator.pop(context);
+
+                          // for showing snakbar
+                          Dialogs.showSnackBar(context, "Text Copied!");
+
+                          log("Text copied");
+                        }).onError((error, stackTrace) {
+                          log("Error on copying text");
+                        });
+                      })
+                  : _OptiopnItem(
+                      icon: const Icon(
+                        Icons.download,
+                        color: Colors.blue,
+                      ),
+                      name: 'Save image',
+                      onTap: () {}),
+
+              // divider
+              Divider(
+                color: Colors.black54,
+                indent: mq.width * 0.05,
+                endIndent: mq.width * 0.05,
+              ),
+
+              if (widget.message.type == Type.text && isMe)
+                // edit item
+                _OptiopnItem(
+                    icon: const Icon(
+                      Icons.edit,
+                      color: Colors.blue,
+                    ),
+                    name: 'Edit Message',
+                    onTap: () {}),
+
+              // delete item
+              if (isMe)
+                _OptiopnItem(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ),
+                    name: 'Delete Message',
+                    onTap: () async {
+                      await APIs.deleteMessage(widget.message).then((value) {
+                        // for hiding botom sheet
+                        Navigator.pop(context);
+
+                        // for showing snakbar
+                        Dialogs.showSnackBar(context, "Message Deleted");
+                      });
+                    }),
+
+              // divider
+              if (isMe)
+                Divider(
+                  color: Colors.black54,
+                  indent: mq.width * 0.05,
+                  endIndent: mq.width * 0.05,
+                ),
+
+              // sent item
+              _OptiopnItem(
+                  icon: const Icon(
+                    Icons.remove_red_eye,
+                    color: Colors.blue,
+                  ),
+                  name:
+                      'Sent at: ${MyDateUtil.getMessageTime(context: context, time: widget.message.sent)}',
+                  onTap: () {}),
+
+              // read item
+              _OptiopnItem(
+                  icon: const Icon(
+                    Icons.remove_red_eye,
+                    color: Colors.green,
+                  ),
+                  name: widget.message.read.isEmpty
+                      ? 'Not read yet!'
+                      : 'Read at: ${MyDateUtil.getMessageTime(context: context, time: widget.message.read)}',
+                  onTap: () {}),
+            ],
+          );
+        });
+  }
+}
+
+class _OptiopnItem extends StatelessWidget {
+  final Icon icon;
+  final String name;
+  final VoidCallback onTap;
+  const _OptiopnItem(
+      {required this.icon, required this.name, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: onTap,
+      child: Padding(
+        padding: EdgeInsets.only(
+            left: mq.width * 0.05,
+            top: mq.height * 0.015,
+            bottom: mq.height * 0.015),
+        child: Row(
+          children: [
+            icon,
+            Flexible(
+              child: Text(
+                '    $name',
+                style: const TextStyle(
+                    fontSize: 16, color: Colors.black54, letterSpacing: 0.5),
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }

@@ -28,7 +28,8 @@ class _HomePageState extends State<HomePage> {
     // TODO: implement initState
     super.initState();
     APIs.getSelfInfo();
-    APIs.updateActiveStatus(true);
+
+    // updating online and offline status of user in firebase
     SystemChannels.lifecycle.setMessageHandler((message) {
       log('Message: $message');
 

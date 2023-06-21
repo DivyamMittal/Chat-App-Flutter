@@ -17,7 +17,6 @@ class ViewProfileScreen extends StatefulWidget {
 }
 
 class _ViewProfileScreenState extends State<ViewProfileScreen> {
-  final _formKey = GlobalKey<FormState>();
   String? _image;
 
   @override
@@ -35,7 +34,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
         floatingActionButton: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
+            const Text(
               'Joined on: ',
               style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
@@ -102,7 +101,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         'About: ',
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.bold),
