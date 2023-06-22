@@ -5,6 +5,7 @@ import 'package:chat_app/Apis/apis.dart';
 import 'package:chat_app/helper/dialogs.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:gallery_saver/gallery_saver.dart';
 
 import '../Models/message.dart';
 import '../helper/my_date_util.dart';
@@ -210,13 +211,31 @@ class _MessageCardState extends State<MessageCard> {
                           log("Error on copying text");
                         });
                       })
+
+                  // for downlading the image
                   : _OptiopnItem(
                       icon: const Icon(
                         Icons.download,
                         color: Colors.blue,
                       ),
                       name: 'Save image',
-                      onTap: () {}),
+                      onTap: () async {
+                        try {
+                          await GallerySaver.saveImage(widget.message.msg,
+                                  albumName: "Chat App")
+                              .then((success) {
+                            // for hiding bottom sheet
+                            Navigator.pop(context);
+
+                            if (success != null && success) {
+                              Dialogs.showSnackBar(
+                                  context, 'Download Successful');
+                            }
+                          });
+                        } catch (e) {
+                          log("ImageDownloadError: $e");
+                        }
+                      }),
 
               // divider
               Divider(
@@ -233,7 +252,13 @@ class _MessageCardState extends State<MessageCard> {
                       color: Colors.blue,
                     ),
                     name: 'Edit Message',
-                    onTap: () {}),
+                    onTap: () {
+                      // for hiding bottom sheet
+                      Navigator.pop(context);
+
+                      // to show update message dialog
+                      _showMessageUpdateDialog();
+                    }),
 
               // delete item
               if (isMe)
@@ -284,6 +309,67 @@ class _MessageCardState extends State<MessageCard> {
             ],
           );
         });
+  }
+
+  // dialog for updating the message
+  void _showMessageUpdateDialog() {
+    String updatedMsg = widget.message.msg;
+
+    showDialog(
+        context: context,
+        builder: (_) => AlertDialog(
+              contentPadding: const EdgeInsets.only(
+                  left: 24, right: 24, top: 20, bottom: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20)),
+
+              //title
+              title: const Row(children: [
+                Icon(
+                  Icons.message,
+                  color: Colors.blue,
+                  size: 28,
+                ),
+                Text(' Update Message')
+              ]),
+
+              //content
+              content: TextFormField(
+                initialValue: updatedMsg,
+                maxLines: null,
+                onChanged: (value) => updatedMsg = value,
+                decoration: InputDecoration(
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15))),
+              ),
+
+              // action buttons
+              actions: [
+                // cancel button
+                MaterialButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text(
+                    'Cancel',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  ),
+                ),
+
+                // update button
+                MaterialButton(
+                  onPressed: () {
+                    // hide alert dialog box
+                    Navigator.pop(context);
+                    APIs.updateMessage(widget.message, updatedMsg);
+                  },
+                  child: const Text(
+                    'Update',
+                    style: TextStyle(fontSize: 16, color: Colors.blue),
+                  ),
+                )
+              ],
+            ));
   }
 }
 

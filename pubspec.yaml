@@ -46,6 +46,7 @@ dependencies:
   firebase_messaging: ^14.6.3
   http: ^0.13.6 # for calling rest apis
   flutter_notification_channel: ^2.0.0
+  gallery_saver: ^2.3.2
 
 dev_dependencies:
   flutter_test:

@@ -55,13 +55,13 @@ class APIs {
       final body = {
         "to": chatUser.pushToken,
         "notification": {
-          "title": chatUser.name,
+          "title": me.name,
           "body": msg,
           "android_channel_id": "chats",
         },
-        "data": {
-          "some_data": "User ID: ${me.id}",
-        },
+        // "data": {
+        //   "some_data": "User ID: ${me.id}",
+        // },
       };
 
       var res = await post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -123,11 +123,57 @@ class APIs {
         .set(chatUser.toJson());
   }
 
-  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers() {
-    return APIs.firestore
+  // for adding an user  on home screen for conversation
+  static Future<bool> addChatUser(String email) async {
+    final data = await firestore
         .collection("users")
-        .where('id', isNotEqualTo: user.uid)
+        .where('email', isEqualTo: email)
+        .get();
+
+    if (data.docs.isNotEmpty && data.docs.first.id != user.uid) {
+      // user exists
+      firestore
+          .collection('users')
+          .doc(user.uid)
+          .collection('my_users')
+          .doc(data.docs.first.id)
+          .set({});
+
+      return true;
+    } else {
+      // user does not exists
+      return false;
+    }
+  }
+
+  // for getting ids of known users from firestore database
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getMyUsersId() {
+    return firestore
+        .collection("users")
+        .doc(user.uid)
+        .collection('my_users')
         .snapshots();
+  }
+
+  // for getting all users from firestore database
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getAllUsers(
+      List<String> userIds) {
+    return firestore
+        .collection("users")
+        .where('id', whereIn: userIds.isEmpty ? [''] : userIds)
+        // .where('id', isNotEqualTo: user.uid)
+        .snapshots();
+  }
+
+  // for adding an user to my user when first message is sent
+  static Future<void> sendFirstMessage(
+      ChatUser chatUser, String msg, Type type) async {
+    await firestore
+        .collection("users")
+        .doc(chatUser.id)
+        .collection('my_users')
+        .doc(user.uid)
+        .set({}).then((value) => sendMessage(chatUser, msg, type));
   }
 
   // for updating data in rpofile page
@@ -250,5 +296,13 @@ class APIs {
         .delete();
     if (message.type == Type.image)
       await storage.refFromURL(message.msg).delete();
+  }
+
+  // to update the message
+  static Future<void> updateMessage(Message message, String updatedMsg) async {
+    await firestore
+        .collection("chat/${getConversationId(message.toId)}/messages/")
+        .doc(message.sent)
+        .update({'msg': updatedMsg});
   }
 }
