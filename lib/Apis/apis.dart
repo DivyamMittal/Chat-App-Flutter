@@ -264,6 +264,25 @@ class APIs {
         .update({'read': DateTime.now().millisecondsSinceEpoch.toString()});
   }
 
+  // count unread messages
+  // static Stream<QuerySnapshot<Map<String, dynamic>>> countUnreadMessage(
+  //     ChatUser user) {
+  //   return firestore
+  //       .collection("chat/${getConversationId(user.id)}/messages/")
+  //       .where('read', isEqualTo: '')
+  //       .where('toId', isEqualTo: me.id)
+  //       .snapshots();
+  // }
+
+  static Stream<int> countUnreadMessage(ChatUser user) {
+    return firestore
+        .collection("chat/${getConversationId(user.id)}/messages/")
+        .where('read', isEqualTo: '')
+        .where('toId', isEqualTo: me.id)
+        .snapshots()
+        .map((QuerySnapshot querySnapshot) => querySnapshot.size);
+  }
+
   static Stream<QuerySnapshot<Map<String, dynamic>>> getlastMessage(
       ChatUser user) {
     return firestore

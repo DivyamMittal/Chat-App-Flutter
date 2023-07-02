@@ -40,6 +40,7 @@ class _HomePageState extends State<HomePage> {
         if (message.toString().contains('resume')) {
           APIs.updateActiveStatus(true);
         }
+        setState(() {});
       }
 
       return Future.value(message);
@@ -146,8 +147,8 @@ class _HomePageState extends State<HomePage> {
                         switch (snapshot.connectionState) {
                           case ConnectionState.waiting:
                           case ConnectionState.none:
-                          // return const Center(
-                          //     child: CircularProgressIndicator());
+                            return const Center(
+                                child: CircularProgressIndicator());
 
                           case ConnectionState.active:
                           case ConnectionState.done:
@@ -237,12 +238,12 @@ class _HomePageState extends State<HomePage> {
 
                     if (email.isNotEmpty) {
                       await APIs.addChatUser(email).then((value) {
-                        if (value) {
-                          Dialogs.showSnackBar(context, "User Added");
-                        }
                         if (!value) {
                           Dialogs.showSnackBar(
                               context, "User does not exists!");
+                        }
+                        if (value) {
+                          Dialogs.showSnackBar(context, "User Added");
                         }
                       });
                     }

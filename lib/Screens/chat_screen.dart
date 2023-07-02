@@ -86,10 +86,16 @@ class _ChatScreenState extends State<ChatScreen> {
                                 });
                           } else {
                             log('list is empty');
-                            return const Center(
-                              child: Text(
-                                "Say Hi! 👋",
-                                style: TextStyle(fontSize: 18),
+                            return Center(
+                              child: InkWell(
+                                onTap: () {
+                                  APIs.sendFirstMessage(
+                                      widget.user, "Hi", Type.text);
+                                },
+                                child: const Text(
+                                  "Say Hi! 👋",
+                                  style: TextStyle(fontSize: 18),
+                                ),
                               ),
                             );
                           }
@@ -193,7 +199,7 @@ class _ChatScreenState extends State<ChatScreen> {
                           : MyDateUtil.getLastActiveTime(
                               context: context,
                               lastActive: widget.user.lastActive),
-                      style: TextStyle(fontSize: 13),
+                      style: const TextStyle(fontSize: 13),
                     )
                   ],
                 )
