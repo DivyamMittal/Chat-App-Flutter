@@ -37,7 +37,7 @@ class APIs {
       }
     });
 
-// for handling foreground messages
+    // for handling foreground messages
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       log('Got a message whilst in the foreground!');
       log('Message data: ${message.data}');
@@ -323,5 +323,9 @@ class APIs {
         .collection("chat/${getConversationId(message.toId)}/messages/")
         .doc(message.sent)
         .update({'msg': updatedMsg});
+  }
+
+  static Stream<QuerySnapshot<Map<String, dynamic>>> getListUserData() {
+    return firestore.collection('users').snapshots();
   }
 }

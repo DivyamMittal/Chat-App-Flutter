@@ -122,12 +122,14 @@ class _HomePageState extends State<HomePage> {
             ),
 
             // floating action button
-            floatingActionButton: FloatingActionButton(
-              onPressed: () async {
-                _showAddUserDialog();
-              },
-              child: const Icon(Icons.person_add_alt_1_rounded),
-            ),
+            floatingActionButton: !_isSearching
+                ? FloatingActionButton(
+                    onPressed: () async {
+                      _showAddUserDialog();
+                    },
+                    child: const Icon(Icons.person_add_alt_1_rounded),
+                  )
+                : Container(),
 
             // body
             body: StreamBuilder(

@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:chat_app/Models/chat_user.dart';
 import 'package:chat_app/helper/Dialogs.dart';
+import 'package:chat_app/sample.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -190,7 +191,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         "Update",
                         style: TextStyle(fontSize: 16),
                       ),
-                    )
+                    ),
+                    // ElevatedButton(
+                    //     onPressed: () {
+                    //       Navigator.push(
+                    //           context,
+                    //           MaterialPageRoute(
+                    //               builder: (context) => const SampleScreen()));
+                    //     },
+                    //     child: const Text("Go")),
                   ],
                 ),
               ),
